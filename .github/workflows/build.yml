@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install FFmpeg for media tests
+        run: choco install ffmpeg -y --no-progress
+
+      - name: Test core
+        run: |
+          $env:PATH = "C:\ProgramData\chocolatey\bin;$env:PATH"
+          dotnet test tests/Tangerine.Core.Tests -c Release --logger "console;verbosity=normal"
+
+      - name: Publish
+        run: |
+          foreach ($rid in @("win-x64", "win-arm64")) {
+            dotnet publish src/Tangerine.App -c Release -r $rid --self-contained `
+              -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true `
+              -o "out/$rid"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Smoke test UI (render previews)
+        run: |
+          $p = Start-Process -FilePath "out/win-x64/Tangerine.exe" -ArgumentList "--render-preview", "$PWD/previews" -PassThru -Wait
+          if (Test-Path previews/error.txt) { Get-Content previews/error.txt }
+          if ($p.ExitCode -ne 0 -or -not (Test-Path previews/ok.txt)) { Write-Error "UI smoke test failed ($($p.ExitCode))"; exit 1 }
+          Get-ChildItem previews
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: previews
+          path: previews
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tangerine-win-x64
+          path: out/win-x64/Tangerine.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tangerine-win-arm64
+          path: out/win-arm64/Tangerine.exe
