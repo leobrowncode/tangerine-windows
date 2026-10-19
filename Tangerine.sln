@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{743D6531-1211-42F7-9175-CE58DE8B4904}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tangerine.Core", "src\Tangerine.Core\Tangerine.Core.csproj", "{7B8598B3-BC02-447F-86D6-D597C062797A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1287228C-5F5A-499B-A8DF-467F1B5E420C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tangerine.Core.Tests", "tests\Tangerine.Core.Tests\Tangerine.Core.Tests.csproj", "{37043BB4-E7F8-48EB-8BF2-165A41AA371C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B8598B3-BC02-447F-86D6-D597C062797A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B8598B3-BC02-447F-86D6-D597C062797A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B8598B3-BC02-447F-86D6-D597C062797A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B8598B3-BC02-447F-86D6-D597C062797A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37043BB4-E7F8-48EB-8BF2-165A41AA371C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37043BB4-E7F8-48EB-8BF2-165A41AA371C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37043BB4-E7F8-48EB-8BF2-165A41AA371C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37043BB4-E7F8-48EB-8BF2-165A41AA371C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7B8598B3-BC02-447F-86D6-D597C062797A} = {743D6531-1211-42F7-9175-CE58DE8B4904}
+		{37043BB4-E7F8-48EB-8BF2-165A41AA371C} = {1287228C-5F5A-499B-A8DF-467F1B5E420C}
+	EndGlobalSection
+EndGlobal
