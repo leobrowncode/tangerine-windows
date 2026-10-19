@@ -174,6 +174,42 @@ internal static partial class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool SetForegroundWindow(IntPtr hWnd);
 
+    [LibraryImport("user32.dll")]
+    public static partial IntPtr GetForegroundWindow();
+
+    [LibraryImport("user32.dll")]
+    public static partial uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool AttachThreadInput(uint idAttach, uint idAttachTo, [MarshalAs(UnmanagedType.Bool)] bool fAttach);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool BringWindowToTop(IntPtr hWnd);
+
+    /// <summary>
+    /// Brings one of our windows to the front after a drop. Windows normally refuses foreground changes
+    /// from background apps, so briefly share input state with the current foreground thread.
+    /// </summary>
+    public static void ForceForeground(IntPtr hwnd)
+    {
+        var foreground = GetForegroundWindow();
+        var foregroundThread = GetWindowThreadProcessId(foreground, out _);
+        var ourThread = GetCurrentThreadId();
+        var attach = foregroundThread != 0 && foregroundThread != ourThread;
+        if (attach) AttachThreadInput(ourThread, foregroundThread, true);
+        try
+        {
+            BringWindowToTop(hwnd);
+            SetForegroundWindow(hwnd);
+        }
+        finally
+        {
+            if (attach) AttachThreadInput(ourThread, foregroundThread, false);
+        }
+    }
+
     public static void MakeToolWindow(IntPtr hwnd, bool noActivate)
     {
         var style = GetWindowLongPtr(hwnd, GWL_EXSTYLE).ToInt64();

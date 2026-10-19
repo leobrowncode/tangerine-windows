@@ -36,6 +36,17 @@ public class CatalogTests : IDisposable
     }
 
     [Fact]
+    public void Heic_converts_but_offers_no_same_format_tools()
+    {
+        var ids = IdsFor("holiday.heic");
+        Assert.Contains("image.convert.jpg", ids);
+        Assert.Contains("image.convert.png", ids);
+        Assert.DoesNotContain("image.compress", ids);
+        Assert.DoesNotContain("image.rotate", ids);
+        Assert.DoesNotContain("image.resize", ids);
+    }
+
+    [Fact]
     public void Multiple_images_offer_combine()
     {
         var ids = IdsFor("a.png", "b.jpg");

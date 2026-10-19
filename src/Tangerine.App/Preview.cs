@@ -69,18 +69,18 @@ internal static class Preview
     private static BitmapSource RenderWindow(Window window)
     {
         var content = (FrameworkElement)window.Content;
-        var width = Math.Max(1, content.ActualWidth);
-        var height = Math.Max(1, content.ActualHeight);
-        var visual = new DrawingVisual();
-        using (var dc = visual.RenderOpen())
-        {
-            var transparentChrome = window.AllowsTransparency;
-            if (!transparentChrome)
-                dc.DrawRectangle(new SolidColorBrush(PrefersLight() ? Color.FromRgb(0xF3, 0xF3, 0xF3) : Color.FromRgb(0x20, 0x20, 0x20)), null, new Rect(0, 0, width, height));
-            dc.DrawRectangle(new VisualBrush(content) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top }, null, new Rect(0, 0, width, height));
-        }
+        var width = Math.Max(1, content.ActualWidth + content.Margin.Left + content.Margin.Right);
+        var height = Math.Max(1, content.ActualHeight + content.Margin.Top + content.Margin.Bottom);
         var bitmap = new RenderTargetBitmap((int)(width * 2), (int)(height * 2), 192, 192, PixelFormats.Pbgra32);
-        bitmap.Render(visual);
+        if (!window.AllowsTransparency)
+        {
+            // Mica is composited by DWM and is not part of the visual tree, so paint a stand-in.
+            var background = new DrawingVisual();
+            using (var dc = background.RenderOpen())
+                dc.DrawRectangle(new SolidColorBrush(PrefersLight() ? Color.FromRgb(0xF3, 0xF3, 0xF3) : Color.FromRgb(0x20, 0x20, 0x20)), null, new Rect(0, 0, width, height));
+            bitmap.Render(background);
+        }
+        bitmap.Render(window);
         bitmap.Freeze();
         return bitmap;
     }

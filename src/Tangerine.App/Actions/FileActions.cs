@@ -73,7 +73,18 @@ internal sealed class FileActions(JobRunner runner)
     private async Task Move(IReadOnlyList<string> files)
     {
         var dialog = new OpenFolderDialog { Title = "Move to…", InitialDirectory = Shell.FolderOf(files[0]) };
-        if (dialog.ShowDialog() != true) return;
+        var owner = new AnchorWindow();
+        bool? chosen;
+        try
+        {
+            owner.Present();
+            chosen = dialog.ShowDialog(owner);
+        }
+        finally
+        {
+            owner.Close();
+        }
+        if (chosen != true) return;
         var destination = dialog.FolderName;
 
         var moved = new List<string>();

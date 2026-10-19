@@ -37,6 +37,7 @@ public partial class ParametersWindow : Window
             var work = new Rect(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop, SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
             Left = Math.Clamp(dip.X - ActualWidth / 2, work.Left, work.Right - ActualWidth);
             Top = Math.Clamp(dip.Y - ActualHeight / 2, work.Top, work.Bottom - ActualHeight);
+            NativeMethods.ForceForeground(new System.Windows.Interop.WindowInteropHelper(this).Handle);
             Activate();
             if (_boxes.Values.FirstOrDefault() is { } first)
             {

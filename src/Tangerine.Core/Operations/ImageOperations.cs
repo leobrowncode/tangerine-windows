@@ -93,6 +93,10 @@ public abstract class ImageTransformOperation : PerFileOperation
     public override OperationGroup Group => OperationGroup.Tool;
     protected override IReadOnlySet<FileKind> InputKinds => new HashSet<FileKind> { FileKind.Image };
 
+    // Results keep the source format, and the bundled ImageMagick cannot encode HEIC.
+    protected override bool AcceptsInput(string path) =>
+        base.AcceptsInput(path) && PathNames.Extension(path) is not (".heic" or ".heif");
+
     protected abstract string Suffix(OperationContext context);
 
     protected virtual int Quality(MagickImage image, OperationContext context) =>
@@ -122,7 +126,7 @@ public sealed class ImageCompressOperation : ImageTransformOperation
     public override string Title => "Compress image";
 
     protected override bool AcceptsInput(string path) =>
-        base.AcceptsInput(path) && PathNames.Extension(path) is ".jpg" or ".jpeg" or ".png" or ".webp" or ".heic" or ".heif" or ".avif" or ".tif" or ".tiff";
+        base.AcceptsInput(path) && PathNames.Extension(path) is ".jpg" or ".jpeg" or ".png" or ".webp" or ".avif" or ".tif" or ".tiff";
 
     protected override string Suffix(OperationContext context) => " (compressed)";
 

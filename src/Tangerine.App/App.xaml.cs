@@ -196,6 +196,7 @@ public partial class App : Application
     {
         if (_settingsWindow is not null)
         {
+            NativeMethods.ForceForeground(new System.Windows.Interop.WindowInteropHelper(_settingsWindow).Handle);
             _settingsWindow.Activate();
             return;
         }
