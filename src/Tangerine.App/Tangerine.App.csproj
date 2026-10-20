@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Tangerine.App</RootNamespace>
+    <AssemblyName>Tangerine</AssemblyName>
+    <Product>Tangerine for Windows</Product>
+    <Version>1.0.0</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Tangerine.ico</ApplicationIcon>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- ThemeMode (Fluent) is still flagged as experimental. -->
+    <NoWarn>$(NoWarn);WPF0001;CA1416;WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Both WPF and WinForms are referenced; keep WPF types unambiguous. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Tangerine.ico" />
+    <Resource Include="Assets\Tangerine.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tangerine.Core\Tangerine.Core.csproj" />
+  </ItemGroup>
+
+</Project>
