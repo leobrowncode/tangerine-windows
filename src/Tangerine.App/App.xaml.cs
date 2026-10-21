@@ -97,6 +97,7 @@ public partial class App : Application
         _wheel.Dismissed += () =>
         {
             if (_hook is not null) _hook.WheelVisible = false;
+            Dispatcher.BeginInvoke(NativeMethods.ReleaseModifiersIfPhysicallyUp, DispatcherPriority.ApplicationIdle);
         };
     }
 
@@ -137,6 +138,7 @@ public partial class App : Application
 
     private void OnDragEnded()
     {
+        Dispatcher.BeginInvoke(NativeMethods.ReleaseModifiersIfPhysicallyUp, DispatcherPriority.ApplicationIdle);
         if (!_wheel.IsOpen) return;
         // The drop callback may arrive just after the button-up we observe in the hook; give it a moment.
         _dismissAfterDrag ??= new DispatcherTimer(TimeSpan.FromMilliseconds(450), DispatcherPriority.Normal, (_, _) =>
