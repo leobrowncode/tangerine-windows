@@ -125,7 +125,13 @@ internal sealed class GestureHook : IDisposable
         var injected = (data.flags & LLKHF_INJECTED) != 0;
 
         if (isUp && _swallowedKeys.Remove(data.vkCode))
-            return 1;
+        {
+            // The key-down was eaten so the drag stays a copy. The key-up still has to reach
+            // Windows: eating it too leaves Shift latched in Explorer after the conversion,
+            // and a click no longer selects a file until Esc and Shift.
+            // SendInput from inside this hook deadlocks, so the extra key-up is posted to the UI thread.
+            _ui.BeginInvoke(NativeMethods.ReleaseModifiersIfPhysicallyUp);
+        }
 
         if (isDown && !injected)
         {

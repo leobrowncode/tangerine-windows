@@ -38,7 +38,9 @@ internal static partial class NativeMethods
     public const uint MONITOR_DEFAULTTONEAREST = 2;
 
     public const uint INPUT_MOUSE = 0;
+    public const uint INPUT_KEYBOARD = 1;
     public const uint MOUSEEVENTF_MOVE = 0x0001;
+    public const uint KEYEVENTF_KEYUP = 0x0002;
 
     public delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -98,11 +100,21 @@ internal static partial class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct KEYBDINPUT
+    {
+        public ushort wVk;
+        public ushort wScan;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
     public struct INPUT
     {
-        public uint type;
-        public MOUSEINPUT mi;
-        // Pads the union to the size of its largest member (MOUSEINPUT is the largest).
+        [FieldOffset(0)] public uint type;
+        [FieldOffset(8)] public MOUSEINPUT mi;
+        [FieldOffset(8)] public KEYBDINPUT ki;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -171,6 +183,9 @@ internal static partial class NativeMethods
     public static partial uint SendInput(uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
     [LibraryImport("user32.dll")]
+    public static partial short GetAsyncKeyState(int vKey);
+
+    [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool SetForegroundWindow(IntPtr hWnd);
 
@@ -229,6 +244,41 @@ internal static partial class NativeMethods
     public static void NudgeMouse()
     {
         var input = new INPUT { type = INPUT_MOUSE, mi = new MOUSEINPUT { dwFlags = MOUSEEVENTF_MOVE } };
+        SendInput(1, [input], Marshal.SizeOf<INPUT>());
+    }
+
+    /// <summary>
+    /// Sends a key-up for every modifier that is physically up. Swallowing the trigger key-down
+    /// lets Explorer snapshot Shift as held when the drag ends; if the matching key-up never
+    /// reaches that thread, every later click stays a Shift-click until the user presses Esc and Shift.
+    /// </summary>
+    public static void ReleaseModifiersIfPhysicallyUp()
+    {
+        ReleaseIfUp(VK_LSHIFT);
+        ReleaseIfUp(VK_RSHIFT);
+        ReleaseIfUp(VK_LCONTROL);
+        ReleaseIfUp(VK_RCONTROL);
+        ReleaseIfUp(VK_LMENU);
+        ReleaseIfUp(VK_RMENU);
+        if (!IsDown(VK_LSHIFT) && !IsDown(VK_RSHIFT)) ReleaseKey(VK_SHIFT);
+        if (!IsDown(VK_LCONTROL) && !IsDown(VK_RCONTROL)) ReleaseKey(VK_CONTROL);
+        if (!IsDown(VK_LMENU) && !IsDown(VK_RMENU)) ReleaseKey(VK_MENU);
+    }
+
+    private static void ReleaseIfUp(int vk)
+    {
+        if (!IsDown(vk)) ReleaseKey(vk);
+    }
+
+    private static bool IsDown(int vk) => (GetAsyncKeyState(vk) & 0x8000) != 0;
+
+    private static void ReleaseKey(int vk)
+    {
+        var input = new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            ki = new KEYBDINPUT { wVk = (ushort)vk, dwFlags = KEYEVENTF_KEYUP },
+        };
         SendInput(1, [input], Marshal.SizeOf<INPUT>());
     }
 }
